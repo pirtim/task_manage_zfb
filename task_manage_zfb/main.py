@@ -12,6 +12,16 @@ import uuid
 import random
 import time
 
+class TaskNotFoundError(IndexError):
+    '''Raise when a user references to non existing task.'''
+    def __init__(self, task_id, message=None, *args):
+        if message == None:
+            self.message = "Task of id " + str(task_id) + " not found."
+        else:
+            self.message = message
+        self.task_id = task_id
+        super(TaskNotFoundError, self).__init__(self.message, *args)
+
 class TaskResult():
     '''Container for results of one tusk.'''
     def __init__(self, task, task_start_time=None):
@@ -50,6 +60,9 @@ class Task():
             
             self.task_result.add_task_result(result_raw)
         return self.task_result
+        
+    def _get_str_about(self):
+        return self.function.__name__ + " - " + str(self.times_to_exec) + " - " + str(self.args) + " - " + str(self.kwargs)
 
 class TaskBucketResult():
     '''Container for results of tasks.'''
@@ -106,6 +119,27 @@ class TaskBucket():
         for i in self.bucket:
             self.bucket_result.add_bucket_result(i.executeTask())
         return self.bucket_result
+        
+    def get_task(self, task_id):
+        if len(self.bucket) - 1 < task_id:
+            raise TaskNotFoundError(task_id)
+        else:
+            return self.bucket[task_id]        
+        
+    def del_task(self, task_id):
+        if len(self.bucket) - 1 < task_id:
+            raise TaskNotFoundError(task_id)
+        else:
+            del self.bucket[task_id]
+            
+    def list_bucket(self):
+        return_str = '[ id - function name - times to execute - args - kwargs ]\n'
+        
+        for index, tsk in enumerate(self.bucket):
+            return_str += "[ " + str(index) + " - " + tsk._get_str_about() + " ]\n"
+        
+        # [:-1] = without \n
+        return return_str[:-1]        
     
 def tests():
     '''Funkcja zawierajaca testy'''
@@ -134,6 +168,7 @@ def tests():
 
 if __name__ == "__main__":
     tests()
+    # cokolwiek
     pass
     
     
