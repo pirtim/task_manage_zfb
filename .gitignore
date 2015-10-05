@@ -1,3 +1,4 @@
-Zalozenia.txt
+Zalozenia*.txt
 fabfile.py
 *.pyc
+.vscode
