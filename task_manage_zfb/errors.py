@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import with_statement, division
+import ConfigParser
 
 class TaskNotFoundError(IndexError):
     '''Raise when a user references to non existing task.'''
@@ -11,3 +12,18 @@ class TaskNotFoundError(IndexError):
         self.task_id = task_id
         super(TaskNotFoundError, self).__init__(self.message, *args)
         
+class ConfigParserLackOfStartCommentError(ConfigParser.Error):
+    def __init__(self, message=None, *args):
+        if message == None:
+            self.message = "Start comment was not declared."
+        else:
+            self.message = message
+        super(ConfigParser.Error, self).__init__(self.message, *args)
+    
+class ConfigParserBadCommentError(ConfigParser.Error):
+    def __init__(self, message=None, *args):
+        if message == None:
+            self.message = "First character in every line of comment isn't equal to # or ;."
+        else:
+            self.message = message
+        super(ConfigParser.Error, self).__init__(self.message, *args)
