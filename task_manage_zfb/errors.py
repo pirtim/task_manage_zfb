@@ -40,3 +40,4 @@ class ConfigNotConfigFileError(MyBaseError):
             self.message = message
         self.path = path
         super(MyBaseError, self).__init__(self.message, *args)
+        

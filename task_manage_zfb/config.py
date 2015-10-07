@@ -7,8 +7,8 @@ import ConfigParser
 import os
 import sys
 
-class ConfigParserWithComments(ConfigParser.ConfigParser):  
-    def add_start_comment(self, comment):
+class ConfigParserWithComments(ConfigParser.ConfigParser):
+    def set_start_comment(self, comment):
         if type(comment) != str:
             raise TypeError("Variable comment isn't string type.")
         
@@ -16,7 +16,7 @@ class ConfigParserWithComments(ConfigParser.ConfigParser):
         for line in splitted_comment:            
             if not (line.startswith("#") or line.startswith(";")):#   line[0] != "#" and line[0] != ";":
                 raise ConfigParserBadCommentError()
-        self._start_comment_str = comment      
+        self._start_comment_str = comment          
         
     def del_start_comment(self):
         if hasattr(self, '_start_comment_str'):
@@ -54,22 +54,30 @@ class ConfigParserWithComments(ConfigParser.ConfigParser):
         else:
             fp.write("%s = %s\n" % (key, str(value).replace('\n', '\n\t')))
 
+# to dałoby radę przepisać na dziedziczone po ConfigParserWithComments
 class Config:
-    '''Main config class. Parses config files.'''    
+    '''Main config class. Parses config files.'''   
+    def _add_recognize_str_to_start_comment(self):
+        try:
+            start_comment = self.confpars_inst.get_start_comment()
+            self.confpars_inst.set_start_comment(self._config_file_recognize_str+'\n'+start_comment)
+        except ConfigParserLackOfStartCommentError:
+            self.confpars_inst.set_start_comment(self._config_file_recognize_str)
+     
     @staticmethod
     def _config_file_recognize_str_gen(internal_recognize_str): 
-        return '# -*- task_manage_zfb: {} -*-\n'.format(internal_recognize_str)
+        return '# -*- task_manage_zfb: {} -*-'.format(internal_recognize_str)
     
     internal_recognize_str = 'true'
     # not pythonic
     _config_file_recognize_str = _config_file_recognize_str_gen.__func__(internal_recognize_str)
     
     @classmethod
-    def _is_Config_File(cls, file_path):
+    def is_Config_File(cls, file_path):
         if not os.path.isfile(file_path) or os.path.getsize(file_path) == 0:
             return False    
         with open(file_path, 'rb') as configfile:
-            return configfile.readline() == cls._config_file_recognize_str
+            return configfile.readline().strip() == cls._config_file_recognize_str
     
     def __init__(self, configfile_path):
         self.configfile_path = configfile_path
@@ -79,37 +87,38 @@ class Config:
         if file_path == None:
             file_path = self.configfile_path
         with open(file_path, 'wb') as configfile:
-            # broken add_start_comment here
-            # -1 bo \n\n na koncu - przemyslec
-            self.confpars_inst.add_start_comment(self._config_file_recognize_str[:-1])
+            self._add_recognize_str_to_start_comment()
             self.confpars_inst.write(configfile)
             
         # with open(file_path, 'rb') as configfile:
         #     print 'configfile.read():'
-        #     print configfile.read()
-            
+        #     print configfile.read()    
+        #     print '=========='        
             
     def del_configfile(self, file_path=None):
         if file_path == None:
             file_path = self.configfile_path
         if os.path.isfile(file_path):
-            if Config._is_Config_File(file_path):
+            if Config.is_Config_File(file_path):
                 os.remove(file_path)
             else:
-                raise ConfigNotConfigFileError(file_path)
-                
+                raise ConfigNotConfigFileError(file_path)                
     
 class MasterConfig(Config):
     '''
     Parses master config files.
     Looks for config file in main master directory or in dirictory specified by user.
     '''
+    internal_recognize_str = 'master'
+    _config_file_recognize_str = Config._config_file_recognize_str_gen(internal_recognize_str)
     
 class WorkerConfig(Config):
     '''
     Creates and parses worker config files.    
     Looks for config file in worker main directory or in directory specified by user.
     '''
+    internal_recognize_str = 'worker'
+    _config_file_recognize_str = Config._config_file_recognize_str_gen(internal_recognize_str)
     
 # chyba nie potrzebne, bedzie w masterze w sekcji ssh
 class ConnectionConfig(Config):
