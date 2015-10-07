@@ -13,8 +13,9 @@ class ConfigParserWithComments(ConfigParser.ConfigParser):
             raise TypeError("Variable comment isn't string type.")
         
         splitted_comment = comment.splitlines()
-        for line in splitted_comment:            
-            if not (line.startswith("#") or line.startswith(";")):#   line[0] != "#" and line[0] != ";":
+        for line in splitted_comment:     
+            #   line[0] != "#" and line[0] != ";":       
+            if not (line.startswith("#") or line.startswith(";")):
                 raise ConfigParserBadCommentError()
         self._start_comment_str = comment          
         
@@ -28,10 +29,10 @@ class ConfigParserWithComments(ConfigParser.ConfigParser):
         if hasattr(self, '_start_comment_str'):
             return self._start_comment_str
         else:
-            raise ConfigParserLackOfStartCommentError()            
+            raise ConfigParserLackOfStartCommentError()        
                 
     def add_comment(self, section, comment):
-        self.set(section, '# %s' % (comment,), None)  
+        self.set(section, '# %s' % (comment,), None)
         
     def write(self, fp):
         """Write an .ini-format representation of the configuration state.""" 
@@ -54,42 +55,41 @@ class ConfigParserWithComments(ConfigParser.ConfigParser):
         else:
             fp.write("%s = %s\n" % (key, str(value).replace('\n', '\n\t')))
 
-# to dałoby radę przepisać na dziedziczone po ConfigParserWithComments
-class Config:
-    '''Main config class. Parses config files.'''   
-    def _add_recognize_str_to_start_comment(self):
-        try:
-            start_comment = self.confpars_inst.get_start_comment()
-            self.confpars_inst.set_start_comment(self._config_file_recognize_str+'\n'+start_comment)
-        except ConfigParserLackOfStartCommentError:
-            self.confpars_inst.set_start_comment(self._config_file_recognize_str)
-     
+class Config(ConfigParserWithComments):
+    '''Main config class. Parses zfb config files.'''   
+    
+    # START not pythonic    
+    internal_recognize_str = 'true'
+    
     @staticmethod
     def _config_file_recognize_str_gen(internal_recognize_str): 
         return '# -*- task_manage_zfb: {} -*-'.format(internal_recognize_str)
     
-    internal_recognize_str = 'true'
-    # not pythonic
-    _config_file_recognize_str = _config_file_recognize_str_gen.__func__(internal_recognize_str)
+    _config_file_recognize_str = _config_file_recognize_str_gen.__func__(internal_recognize_str)    
+    # END not pythonic
+           
+    def __init__(self, configfile_path, *args, **kwargs):
+        self.configfile_path = configfile_path
+        ConfigParserWithComments.__init__(self, *args, **kwargs)
+    
+    def write(self, fp):        
+        fp.write("%s\n" % self._config_file_recognize_str)
+        ConfigParserWithComments.write(self, fp)
     
     @classmethod
-    def is_Config_File(cls, file_path):
+    def is_config_file(cls, file_path, _config_file_recognize_str = _config_file_recognize_str):
         if not os.path.isfile(file_path) or os.path.getsize(file_path) == 0:
-            return False    
+            return False   
         with open(file_path, 'rb') as configfile:
-            return configfile.readline().strip() == cls._config_file_recognize_str
-    
-    def __init__(self, configfile_path):
-        self.configfile_path = configfile_path
-        self.confpars_inst = ConfigParserWithComments()   
-        
+            return configfile.readline().strip() == _config_file_recognize_str
+
     def write_configfile(self, file_path=None):
         if file_path == None:
             file_path = self.configfile_path
         with open(file_path, 'wb') as configfile:
-            self._add_recognize_str_to_start_comment()
-            self.confpars_inst.write(configfile)
-            
+            self.write(configfile)
+        
+        # DEBUG CODE: 
         # with open(file_path, 'rb') as configfile:
         #     print 'configfile.read():'
         #     print configfile.read()    
@@ -98,11 +98,10 @@ class Config:
     def del_configfile(self, file_path=None):
         if file_path == None:
             file_path = self.configfile_path
-        if os.path.isfile(file_path):
-            if Config.is_Config_File(file_path):
-                os.remove(file_path)
-            else:
-                raise ConfigNotConfigFileError(file_path)                
+        if Config.is_config_file(file_path):
+            os.remove(file_path)
+        else:
+            raise ConfigNotConfigFileError(file_path)                
     
 class MasterConfig(Config):
     '''
@@ -112,6 +111,10 @@ class MasterConfig(Config):
     internal_recognize_str = 'master'
     _config_file_recognize_str = Config._config_file_recognize_str_gen(internal_recognize_str)
     
+    @classmethod
+    def is_config_file(cls, file_path, _config_file_recognize_str = _config_file_recognize_str):
+        return Config.is_config_file(file_path, _config_file_recognize_str)
+    
 class WorkerConfig(Config):
     '''
     Creates and parses worker config files.    
@@ -119,6 +122,10 @@ class WorkerConfig(Config):
     '''
     internal_recognize_str = 'worker'
     _config_file_recognize_str = Config._config_file_recognize_str_gen(internal_recognize_str)
+    
+    @classmethod
+    def is_config_file(cls, file_path, _config_file_recognize_str = _config_file_recognize_str):
+        return Config.is_config_file(file_path, _config_file_recognize_str)
     
 # chyba nie potrzebne, bedzie w masterze w sekcji ssh
 class ConnectionConfig(Config):

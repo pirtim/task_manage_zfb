@@ -80,7 +80,7 @@ class TestConfig(unittest.TestCase):
     def test_Config___init__(self):
         my_config2 = Config(self.test_configfile_path)
         self.assertIsInstance(my_config2, Config)
-        self.assertIsInstance(my_config2.confpars_inst, ConfigParserWithComments)
+        self.assertIsInstance(my_config2, ConfigParserWithComments)
         self.assertEqual(my_config2.configfile_path, self.test_configfile_path)
         
     def test_Config_write_configfile(self):
@@ -95,17 +95,17 @@ class TestConfig(unittest.TestCase):
     def test_Config_write_configfile2(self):
         # order matters
         self.assertFalse(os.path.isfile(self.test_configfile_path))
-        self.my_config.confpars_inst.set_start_comment('# sth to comment')
+        self.my_config.set_start_comment('# sth to comment')
         self.my_config.write_configfile()
         self.assertTrue(os.path.isfile(self.test_configfile_path))
         with open(self.test_configfile_path, 'rb') as configfile: 
             self.assertEqual(configfile.read(), '# -*- task_manage_zfb: true -*-\n# sth to comment\n')
         self.assertEqual(os.path.getsize(self.test_configfile_path), 49L)      
     
-    def test_Config_is_Config_File(self):
+    def test_Config_is_config_file(self):
         self.my_config.write_configfile()
-        self.assertFalse(Config.is_Config_File(self.normalfile_path))
-        self.assertTrue(Config.is_Config_File(self.test_configfile_path))
+        self.assertFalse(Config.is_config_file(self.normalfile_path))
+        self.assertTrue(Config.is_config_file(self.test_configfile_path))
         
     def test_Config_del_configfile(self):
         self.my_config.write_configfile()
@@ -141,13 +141,19 @@ class TestMasterConfig(unittest.TestCase):
         with open(self.test_configfile_path, 'rb') as configfile: 
             self.assertEqual(configfile.read(), '# -*- task_manage_zfb: master -*-\n')
         self.assertEqual(os.path.getsize(self.test_configfile_path), 34L)    
+        
+    def test_MasterConfig_is_config_file(self):
+        self.my_config.write_configfile()
+        self.assertFalse(MasterConfig.is_config_file(self.normalfile_path))
+        self.assertTrue(MasterConfig.is_config_file(self.test_configfile_path))    
+            
             
     def tearDown(self):
         delete_if_file(self.test_configfile_path)
         delete_if_file(self.normalfile_path)
         delete_if_file(self.emptyfile_path)
         
-class TestMasterConfig(unittest.TestCase):
+class TestWorkerConfig(unittest.TestCase):
     def setUp(self):
         self.test_configfile_path = os.path.join(_test_folder_path, '.conf_file')
         self.normalfile_path = os.path.join(_test_folder_path, '.normal_file')
@@ -158,13 +164,18 @@ class TestMasterConfig(unittest.TestCase):
         with open(self.emptyfile_path, 'w') as emptyfile:
             emptyfile.write("")
             
-    def test_Config_write_configfile(self):
+    def test_WorkerConfig_write_configfile(self):
         self.assertFalse(os.path.isfile(self.test_configfile_path))
         self.my_config.write_configfile()
         self.assertTrue(os.path.isfile(self.test_configfile_path))
         with open(self.test_configfile_path, 'rb') as configfile: 
             self.assertEqual(configfile.read(), '# -*- task_manage_zfb: worker -*-\n')
-        self.assertEqual(os.path.getsize(self.test_configfile_path), 34L)    
+        self.assertEqual(os.path.getsize(self.test_configfile_path), 34L)
+        
+    def test_WorkerConfig_is_config_file(self):
+        self.my_config.write_configfile()
+        self.assertFalse(WorkerConfig.is_config_file(self.normalfile_path))
+        self.assertTrue(WorkerConfig.is_config_file(self.test_configfile_path))
             
     def tearDown(self):
         delete_if_file(self.test_configfile_path)
