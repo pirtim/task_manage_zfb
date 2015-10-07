@@ -5,6 +5,9 @@ from __future__ import with_statement, division
 # from fabric.contrib.project import rsync_project
 # from fabric.decorators import runs_once
 # from fabric.context_managers import hide
+# Cyclic reference? 
+# http://eli.thegreenplace.net/2009/06/12/safely-using-destructors-in-python
+# https://en.wikipedia.org/wiki/Dependency_injection
 
 from errors import TaskNotFoundError
 
@@ -15,7 +18,7 @@ import uuid
 import random
 import time
 
-class TaskResult():
+class TaskResult:
     '''Container for results of one task.'''
     def __init__(self, task, task_start_time=None):
         if task_start_time == None:
@@ -30,7 +33,7 @@ class TaskResult():
             execution_datetime = datetime.datetime.now()
         self.task_result += [(result_raw, uuid.uuid1().hex, execution_datetime)]
 
-class Task():
+class Task:
     '''Remembers function to execute, args and times of execution.'''
     def __init__(self, function, times_to_exec=1, *args, **kwargs):
         self.function = function
@@ -57,7 +60,7 @@ class Task():
     def _get_str_about(self):
         return self.function.__name__ + " - " + str(self.times_to_exec) + " - " + str(self.args) + " - " + str(self.kwargs)
 
-class TaskBucketResult():
+class TaskBucketResult:
     '''Container for results of tasks.'''
     def __init__(self, taskBucket, bucket_initialize_time=None):
         if bucket_initialize_time == None:
@@ -94,7 +97,7 @@ class TaskBucketResult():
         # \n because terminaltables.table's output lacks it
         return "\n" + table.table
 
-class TaskBucket():   
+class TaskBucket:   
     '''Container for tasks to execute.'''  
     def __init__(self, name):
         self.bucket = []

@@ -2,3 +2,4 @@ Zalozenia*.txt
 fabfile.py
 *.pyc
 .vscode
+*_gitignore
