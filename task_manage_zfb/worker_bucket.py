@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement, division
+from __future__ import division
 # from fabric.api import run, env, local, settings, abort, execute
 # from fabric.contrib.console import confirm
 # from fabric.contrib.project import rsync_project

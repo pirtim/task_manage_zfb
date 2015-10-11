@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement, division
+from __future__ import division
 import ConfigParser
 
 class MyBaseError(BaseException):

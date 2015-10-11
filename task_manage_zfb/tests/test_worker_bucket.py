@@ -2,7 +2,7 @@ import unittest
 import datetime
 import uuid
 
-from task_manage_zfb.bucket import TaskBucket, Task, TaskResult
+from task_manage_zfb.worker_bucket import TaskBucket, Task, TaskResult
 from task_manage_zfb.errors import TaskNotFoundError
 
 def id_fun(x):

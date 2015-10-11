@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #  https://docs.python.org/2/library/configparser.html
-from __future__ import with_statement, division
+from __future__ import division
 
 from errors import ConfigParserLackOfStartCommentError, ConfigParserBadCommentError, ConfigNotConfigFileError
 import ConfigParser
@@ -114,6 +114,23 @@ class MasterConfig(Config):
     @classmethod
     def is_config_file(cls, file_path, _config_file_recognize_str = _config_file_recognize_str):
         return Config.is_config_file(file_path, _config_file_recognize_str)
+        
+    def __init__(self, configfile_path, *args, **kwargs):
+        Config.__init__(self, configfile_path, *args, **kwargs)
+        self.ssh_comment = 'txt'
+        
+        # a moze po prostu fabricrc zmodyfikowany z wyraznym zaznaczeniem co mozna a czego nie mozna?
+        self.add_section('SSH')
+        self.add_comment('SSH', 'ssh config')
+        self.set('SSH', 'user', '<TO DEFINE> # not required')
+        self.set('SSH', 'password', '<TO DEFINE> # not required')
+        self.set('SSH', 'gateway', '<TO DEFINE> # not required, example: host.com or user@host.com')
+        self.set('SSH', 'hosts_list', '<TO DEFINE> # required, example: [host1.com, user@host2.com]')
+        
+    def is_masterconfig_ready(self, configfile_path=None):
+        if configfile_path == None:
+            configfile_path = self.configfile_path
+        return True
     
 class WorkerConfig(Config):
     '''
