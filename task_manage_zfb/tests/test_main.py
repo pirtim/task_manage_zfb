@@ -15,10 +15,7 @@ class TestMain(unittest.TestCase):
     def setUp(self):
         self.my_master_config = MasterConfig(master_configfile_path)
         self.my_worker_config = WorkerConfig(worker_configfile_path)
-        with open(normalfile_path, 'w') as normalfile:
-            normalfile.write("test")
-        with open(emptyfile_path, 'w') as emptyfile:
-            emptyfile.write("")
+        help_set_up()
             
     def test__on_master(self):
         self.assertTrue(_on_master(test_folder_path))
@@ -38,7 +35,7 @@ class TestMain(unittest.TestCase):
         self.assertIsInstance(my_bucket, wb.TaskBucket)
             
     def tearDown(self):
-        clean_up()
+        help_tear_down()
         
 if __name__ == '__main__':
     unittest.main()

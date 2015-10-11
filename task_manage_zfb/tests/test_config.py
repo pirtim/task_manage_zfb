@@ -8,7 +8,8 @@ from task_manage_zfb.config import Config, MasterConfig, WorkerConfig, ConfigPar
 from task_manage_zfb.errors import ConfigParserLackOfStartCommentError, ConfigParserBadCommentError, ConfigNotConfigFileError
 
 class TestConfigParserWithComments(unittest.TestCase):
-    def setUp(self):
+    def setUp(self):        
+        help_set_up()
         self.config = ConfigParserWithComments()        
         self.config.add_section('Section')
         self.config.set('Section', 'key', 'value')
@@ -58,15 +59,12 @@ class TestConfigParserWithComments(unittest.TestCase):
         self.assertRaises(ConfigParserLackOfStartCommentError, self.config.get_start_comment)
        
     def tearDown(self):
-        clean_up()
+        help_tear_down()
 
 class TestConfig(unittest.TestCase):
     def setUp(self):
+        help_set_up()
         self.my_config = Config(test_configfile_path)
-        with open(normalfile_path, 'w') as normalfile:
-            normalfile.write("test")
-        with open(emptyfile_path, 'w') as emptyfile:
-            emptyfile.write("")
         
     def test_Config___init__(self):
         my_config2 = Config(test_configfile_path)
@@ -110,15 +108,12 @@ class TestConfig(unittest.TestCase):
         self.assertTrue(os.path.isfile(normalfile_path))
                 
     def tearDown(self):
-        clean_up()
+        help_tear_down()
         
 class TestMasterConfig(unittest.TestCase):
     def setUp(self):
+        help_set_up()
         self.my_config = MasterConfig(test_configfile_path)
-        with open(normalfile_path, 'w') as normalfile:
-            normalfile.write("test")
-        with open(emptyfile_path, 'w') as emptyfile:
-            emptyfile.write("")
             
     def test_MasterConfig_write_configfile(self):
         self.assertFalse(os.path.isfile(test_configfile_path))
@@ -138,15 +133,12 @@ class TestMasterConfig(unittest.TestCase):
         self.assertTrue(MasterConfig.is_config_file(test_configfile_path))              
             
     def tearDown(self):
-        clean_up()
+        help_tear_down()
         
 class TestWorkerConfig(unittest.TestCase):
     def setUp(self):
+        help_set_up()
         self.my_config = WorkerConfig(test_configfile_path)
-        with open(normalfile_path, 'w') as normalfile:
-            normalfile.write("test")
-        with open(emptyfile_path, 'w') as emptyfile:
-            emptyfile.write("")
             
     def test_WorkerConfig_write_configfile(self):
         self.assertFalse(os.path.isfile(test_configfile_path))
@@ -162,7 +154,7 @@ class TestWorkerConfig(unittest.TestCase):
         self.assertTrue(WorkerConfig.is_config_file(test_configfile_path))
             
     def tearDown(self):
-        clean_up()       
+        help_tear_down()       
         
 if __name__ == '__main__':
     unittest.main()

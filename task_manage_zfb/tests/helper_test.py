@@ -14,6 +14,15 @@ def delete_if_file(filepath):
     if os.path.isfile(filepath):
         os.remove(filepath)
         
-def clean_up():
+def help_set_up():
+    if not os.path.isdir(test_folder_path):
+        os.mkdir(test_folder_path) 
+    with open(normalfile_path, 'w') as normalfile:
+        normalfile.write("test")
+    with open(emptyfile_path, 'w') as emptyfile:
+        emptyfile.write("")
+    
+def help_tear_down():
     for path in files_path:
         delete_if_file(path)
+    # os.rmdir(test_folder_path)
