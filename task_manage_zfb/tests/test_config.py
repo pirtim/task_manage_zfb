@@ -2,6 +2,7 @@
 import unittest
 import os
 import logging
+from ConfigParser import NoSectionError
 
 from task_manage_zfb.tests.helper_test import *
 
@@ -27,6 +28,12 @@ class TestConfigParserWithComments(unittest.TestCase):
             self.assertEqual(file_content[0], '[Section]\n')
             self.assertEqual(file_content[1], 'key = value\n')
             self.assertEqual(file_content[2], '# this is the comment\n')
+            
+    def test_ConfigParser_start_del_comment(self):   
+        self.config.add_comment('Section', 'this is the comment')
+        self.assertTrue(self.config.del_comment('Section', 'this is the comment'))        
+        self.assertFalse(self.config.del_comment('Section', 'this is the comment'))
+        self.assertRaises(NoSectionError, self.config.del_comment, *('Section2', 'this is the comment'))
          
     def test_ConfigParser_add_start_comment(self):   
         self.config.set_start_comment('# moj komentarz\n# linia2')

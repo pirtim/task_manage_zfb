@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
+from __future__ import print_function
 
 from fabric.api import run, env, local, settings, abort, execute
 from fabric.contrib.console import confirm

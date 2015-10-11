@@ -11,18 +11,32 @@ import worker_bucket as wb
 from tests.helper_test import loggerfile_path
 
 def _on_worker(folder_path=''):
+    '''
+    Checks if is executed on worker.
+    
+    Example:
+    >>> _on_worker()
+    False
+    '''
     zfb_file_name = '.zfb_config'
     return WorkerConfig.is_config_file(os.path.join(folder_path, zfb_file_name))
 
 def TaskBucket(name, folder_path=''):
+    '''
+    Returns [master_bucket, worker_bucket].TaskBucket.__init__(*args) if on [master, worker].
+    
+    Example:
+    >>> TaskBucket('my_name') #doctest: +ELLIPSIS
+    <master_bucket.MasterTaskBucket object at 0x...>
+    '''
     if _on_worker(folder_path):
         return wb.TaskBucket(name)
     else:
         return mb.MasterTaskBucket(name)
 
 if __name__ == "__main__":
-    def execute_example():
-        '''Funkcja zawierajaca testy'''
+    def usage_example():
+        '''Example of package usage.'''
         def moje_obliczenia1(a, b):
             return a + b
             
@@ -45,10 +59,15 @@ if __name__ == "__main__":
         my_results = buck.execute()
         
         print my_results.get_table_bucket_result()
-    
+        
+    def doctest_fun():
+        import doctest
+        doctest.testmod(extraglobs={})
+            
     # https://docs.python.org/2/library/logging.handlers.html#rotatingfilehandler
     with open(loggerfile_path, 'w') as logfile: pass
     logging.basicConfig(filename=loggerfile_path, format='%(levelname)s:%(message)s', level=logging.INFO)
     
-    execute_example()
+    # usage_example()
+    doctest_fun()
     

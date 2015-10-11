@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 #  https://docs.python.org/2/library/configparser.html
+'''Contains custom ConfigParsers for worker and master environment.'''
+
 from __future__ import division
 
 import ConfigParser
@@ -10,7 +12,31 @@ import logging
 from errors import ConfigParserLackOfStartCommentError, ConfigParserBadCommentError, ConfigNotConfigFileError
 
 class ConfigParserWithComments(ConfigParser.ConfigParser):
+    '''ConfigParser with comment functionality.'''
     def set_start_comment(self, comment):
+        r'''
+        Sets start comment. Comment can be multiline.
+        Raises TypeError if comment is not a string.
+        Raises ConfigParserBadCommentError if every line of comment does not start with # or ;.
+        
+        Examples:
+        >>> cpwc = ConfigParserWithComments()
+        >>> cpwc.set_start_comment('# my_comment\n#second line')
+        
+        >>> cpwc.set_start_comment('# my_comment')
+        >>> cpwc.get_start_comment()
+        '# my_comment'
+                
+        >>> cpwc.set_start_comment('my_comment')
+        Traceback (most recent call last):
+            File "config.py", line 43, in set_start_comment
+        ConfigParserBadCommentError: First character in every line of comment isn't equal to # or ;.
+        
+        >>> cpwc.set_start_comment(1)
+        Traceback (most recent call last): 
+            File "config.py", line 37, in set_start_comment           
+        TypeError: Variable comment isn't string type.
+        '''       
         if type(comment) != str:
             raise TypeError("Variable comment isn't string type.")
         
@@ -22,22 +48,77 @@ class ConfigParserWithComments(ConfigParser.ConfigParser):
         self._start_comment_str = comment          
         
     def del_start_comment(self):
+        '''
+        Deletes earlier set start_comment.
+        Raises ConfigParserLackOfStartCommentError if start_comment was not set.
+        
+        Examples:
+        >>> cpwc = ConfigParserWithComments()
+        >>> cpwc.set_start_comment('# my_comment')
+        >>> cpwc.del_start_comment()
+        
+        >>> cpwc.del_start_comment()
+        Traceback (most recent call last): 
+            File "config.py", line 66, in del_start_comment
+        ConfigParserLackOfStartCommentError: Start comment was not declared.
+        '''
+        
         if hasattr(self, '_start_comment_str'):
             del self._start_comment_str
         else:
             raise ConfigParserLackOfStartCommentError()
             
     def get_start_comment(self):
+        '''
+        Returns start comment as string.
+         
+        Examples:
+        >>> cpwc = ConfigParserWithComments()
+        >>> cpwc.set_start_comment('# my_comment')
+        >>> cpwc.get_start_comment()
+        '# my_comment'
+        '''
         if hasattr(self, '_start_comment_str'):
             return self._start_comment_str
         else:
             raise ConfigParserLackOfStartCommentError()        
                 
-    def add_comment(self, section, comment):
+    def add_comment(self, section, comment):        
+        '''
+        Adds inline comment in section.
+         
+        Examples:
+        >>> cpwc = ConfigParserWithComments()
+        >>> cpwc.add_section('Section')
+        >>> cpwc.add_comment('Section', 'my_comment')
+        >>> cpwc.items('Section')
+        [('# my_comment', None)]
+        '''
         self.set(section, '# %s' % (comment,), None)
         
+    def del_comment(self, section, comment):
+        '''
+        Deletes inline comment from section.
+        Return True if comment existed, False otherwise.
+         
+        Examples:
+        >>> cpwc = ConfigParserWithComments()
+        >>> cpwc.add_section('Section')
+        >>> cpwc.add_comment('Section', 'my_comment')
+        >>> cpwc.del_comment('Section', 'my_comment')
+        True
+        
+        >>> cpwc.del_comment('Section', 'my_comment')
+        False
+        
+        >>> cpwc.del_comment('Section_other', 'my_comment')
+        Traceback (most recent call last):
+        NoSectionError: No section: 'Section_other'
+        '''
+        return self.remove_option(section, "# " + comment)
+        
     def write(self, fp):
-        """Write an .ini-format representation of the configuration state.""" 
+        '''Write an .ini-format representation of the configuration state.'''
         if hasattr(self, '_start_comment_str'):
             fp.write("%s\n" % self._start_comment_str)        
         if self._defaults:
@@ -58,13 +139,13 @@ class ConfigParserWithComments(ConfigParser.ConfigParser):
             fp.write("%s = %s\n" % (key, str(value).replace('\n', '\n\t')))
 
 class Config(ConfigParserWithComments):
-    '''Main config class. Parses zfb config files.'''   
+    '''Main config class. Parses zfb config files.'''
     
     # START not pythonic    
     internal_recognize_str = 'true'
     
     @staticmethod
-    def _config_file_recognize_str_gen(internal_recognize_str): 
+    def _config_file_recognize_str_gen(internal_recognize_str):
         return '# -*- task_manage_zfb: {} -*-'.format(internal_recognize_str)
     
     _config_file_recognize_str = _config_file_recognize_str_gen.__func__(internal_recognize_str)    
@@ -74,18 +155,21 @@ class Config(ConfigParserWithComments):
         self.configfile_path = configfile_path
         ConfigParserWithComments.__init__(self, *args, **kwargs)
     
-    def write(self, fp):        
+    def write(self, fp):
+        '''Write an .ini-format representation of the configuration state.'''      
         fp.write("%s\n" % self._config_file_recognize_str)
         ConfigParserWithComments.write(self, fp)
     
     @classmethod
     def is_config_file(cls, file_path, _config_file_recognize_str = _config_file_recognize_str):
+        '''Returns True if file in file_path was written by Config.write_configfile.'''        
         if not os.path.isfile(file_path) or os.path.getsize(file_path) == 0:
             return False   
         with open(file_path, 'rb') as configfile:
             return configfile.readline().strip() == _config_file_recognize_str
 
     def write_configfile(self, file_path=None):
+        '''Write an .ini-format representation of the configuration state to file under file_path.'''
         if file_path == None:
             file_path = self.configfile_path
         with open(file_path, 'wb') as configfile:
@@ -98,6 +182,7 @@ class Config(ConfigParserWithComments):
         #     print '=========='        
             
     def del_configfile(self, file_path=None):
+        '''Deletes file in file_path if file was written by Config.write_configfile.''' 
         if file_path == None:
             file_path = self.configfile_path
         if Config.is_config_file(file_path):
@@ -115,6 +200,7 @@ class MasterConfig(Config):
     
     @classmethod
     def is_config_file(cls, file_path, _config_file_recognize_str = _config_file_recognize_str):
+        '''Returns True if file in file_path was written by MasterConfig.write_configfile.'''
         return Config.is_config_file(file_path, _config_file_recognize_str)
         
     def __init__(self, configfile_path, *args, **kwargs):
@@ -144,12 +230,10 @@ class WorkerConfig(Config):
     
     @classmethod
     def is_config_file(cls, file_path, _config_file_recognize_str = _config_file_recognize_str):
+        '''Returns True if file in file_path was written by WorkerConfig.write_configfile.'''
         return Config.is_config_file(file_path, _config_file_recognize_str)
-    
-# chyba nie potrzebne, bedzie w masterze w sekcji ssh
-class ConnectionConfig(Config):
-    '''
-    Creates and parse connection config files.    
-    Looks for config file in main master, worker directory or in directory specified by user.
-    '''
+        
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod(extraglobs={})
     
