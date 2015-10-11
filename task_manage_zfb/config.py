@@ -2,10 +2,12 @@
 #  https://docs.python.org/2/library/configparser.html
 from __future__ import division
 
-from errors import ConfigParserLackOfStartCommentError, ConfigParserBadCommentError, ConfigNotConfigFileError
 import ConfigParser
 import os
 import sys
+import logging
+
+from errors import ConfigParserLackOfStartCommentError, ConfigParserBadCommentError, ConfigNotConfigFileError
 
 class ConfigParserWithComments(ConfigParser.ConfigParser):
     def set_start_comment(self, comment):

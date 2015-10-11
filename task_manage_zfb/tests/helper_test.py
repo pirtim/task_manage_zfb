@@ -1,4 +1,5 @@
 import os
+import logging
 
 test_folder_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_files_gitignore')
 
@@ -7,6 +8,8 @@ master_configfile_path = os.path.join(test_folder_path, '.zfb_config')
 test_configfile_path = os.path.join(test_folder_path, '.conf_file')
 normalfile_path = os.path.join(test_folder_path, '.normal_file')
 emptyfile_path = os.path.join(test_folder_path, '.empty_file')
+
+loggerfile_path = os.path.join(test_folder_path, 'main.log')
 
 files_path = [worker_configfile_path, master_configfile_path, test_configfile_path, normalfile_path, emptyfile_path]
 

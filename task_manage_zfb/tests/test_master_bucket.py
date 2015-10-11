@@ -1,6 +1,7 @@
 import unittest
 import datetime
 import uuid
+import logging
 
 from task_manage_zfb.master_bucket import MasterTaskBucket, MasterTask, MasterTaskBucketResult, MasterTaskResult
 from task_manage_zfb.worker_bucket import TaskBucket, Task, TaskResult
@@ -46,11 +47,11 @@ class TestMasterTaskBucketResult(unittest.TestCase):
         self.my_bucket.add_task(id_fun, 1, 1)
         self.my_bucket_result = self.my_bucket.execute()
                 
-    def test_MasterTaskBucketResult__get_str_bucket_result(self):
-        self.assertIsInstance(self.my_bucket_result._get_str_bucket_result, str)
+    def test_MasterTaskBucketResult__get_tablestr_bucket_result(self):
+        self.assertIsInstance(self.my_bucket_result._get_tablestr_bucket_result(), list)
         
     def test_MasterTaskBucketResult_get_table_bucket_result(self):
-        self.assertIsInstance(self.my_bucket_result.get_table_bucket_result(), str)
+        self.assertIsInstance(self.my_bucket_result.get_table_bucket_result(), unicode)
         
 if __name__ == '__main__':
     unittest.main()

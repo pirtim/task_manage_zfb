@@ -1,8 +1,9 @@
 import unittest
 import datetime
 import uuid
+import logging
 
-from task_manage_zfb.worker_bucket import TaskBucket, Task, TaskResult
+from task_manage_zfb.worker_bucket import TaskBucket, Task, TaskResult, TaskBucketResult
 from task_manage_zfb.errors import TaskNotFoundError
 
 def id_fun(x):
@@ -58,6 +59,15 @@ class TestTaskBucket(unittest.TestCase):
         self.my_task = self.my_bucket.get_task(0)      
         self.my_bucket.del_task(0)
         self.assertNotIn(self.my_task, self.my_bucket.bucket)
+        
+    def test_TaskBucket_execute(self):
+        self.assertIsInstance(self.my_bucket.execute(), TaskBucketResult)
+        
+class TestTaskBucketResult(unittest.TestCase):
+    def setUp(self):
+        self.my_bucket = TaskBucket(name="test_name")
+        self.my_bucket.add_task(id_fun, 1, 1)
+        self.my_bucket_result = self.my_bucket.execute()
         
 if __name__ == '__main__':
     unittest.main()

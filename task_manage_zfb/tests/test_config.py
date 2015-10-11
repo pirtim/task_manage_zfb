@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 import os
+import logging
 
 from task_manage_zfb.tests.helper_test import *
 

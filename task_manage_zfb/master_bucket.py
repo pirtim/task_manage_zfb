@@ -13,6 +13,7 @@ import datetime
 import uuid
 import random
 import time
+import logging
 
 from errors import TaskNotFoundError
 from worker_bucket import TaskBucketResult, TaskResult, TaskBucket, Task
@@ -21,7 +22,7 @@ class MasterTaskResult(TaskResult):
     pass
     
 class MasterTaskBucketResult(TaskBucketResult):        
-    def _get_str_bucket_result(self):
+    def _get_tablestr_bucket_result(self):
         '''Private function to help get_table_bucket_result'''
         results = [['#task', '#task_run', 'function / result']]  
         results[0].append('task time')
@@ -34,7 +35,7 @@ class MasterTaskBucketResult(TaskBucketResult):
         
     def get_table_bucket_result(self):
         '''Prints results of bucket in pretty terminal table.'''
-        table_data = self._get_str_bucket_result()
+        table_data = self._get_tablestr_bucket_result()
         table = terminaltables.SingleTable(table_data)        
         table.title = self.taskBucket.name + ' | ' + self.bucket_initialize_time.strftime('%c')       
         table.inner_row_border = True
@@ -43,8 +44,13 @@ class MasterTaskBucketResult(TaskBucketResult):
         return "\n" + table.table
         
 class MasterTask(Task):
-    pass
+    def execute_task(self, ClsResult = MasterTaskResult):
+        return Task.execute_task(self, ClsResult)
     
 class MasterTaskBucket(TaskBucket): 
     '''Container for tasks to execute on master.'''
+    
+    def execute(self, settings_file=None, output=os.path.abspath(__file__), ClsResult = MasterTaskBucketResult):
+        '''Executes bucket of tasks. Can take some time.'''
+        return TaskBucket.execute(self, settings_file, output, ClsResult)
         

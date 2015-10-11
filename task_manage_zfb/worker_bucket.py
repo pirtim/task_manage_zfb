@@ -4,8 +4,8 @@ from __future__ import division
 import os
 import datetime
 import uuid
-import random
 import time
+import logging
 
 # Cyclic reference? 
 # http://eli.thegreenplace.net/2009/06/12/safely-using-destructors-in-python
@@ -54,17 +54,17 @@ class Task(object):
         self.args = args
         self.kwargs = kwargs
     
-    def execute_task(self, verbose = False):
+    def execute_task(self, ClsResult = TaskResult):
         '''Executes one task. It will connect via SSH to hosts.'''  
-        task_result = TaskResult(self)
+        task_result = ClsResult(self)
         
-        if verbose: print "Wykonuje funkcje " + self.function.__name__ + " (z argumentami" + str(self.args) + str(self.kwargs) + "):"  
+        logging.info("Wykonuje funkcje " + self.function.__name__ + " (z argumentami" + str(self.args) + str(self.kwargs) + "):")
             
         for j in range(self.times_to_exec):
             
-            if verbose: print "po raz " + str(j), 
+            logging.debug("po raz " + str(j))
             result_raw = self.function(*self.args, **self.kwargs)
-            if verbose: print "z wynikiem: " + str(result_raw)
+            logging.info("z wynikiem: " + str(result_raw))
             
             task_result.add_task_result(result_raw)
         return task_result
@@ -79,9 +79,9 @@ class TaskBucket(object):
         self.bucket = []
         self.name = name
         
-    def execute(self, settings_file=None, output=os.path.abspath(__file__), verbose = False, ClsResult = TaskBucketResult):
+    def execute(self, settings_file=None, output=os.path.abspath(__file__), ClsResult = TaskBucketResult):
         '''Executes bucket of tasks. Can take some time.'''
-        if verbose: print 'Wykonuje zadanie: ' + self.name + '.'
+        logging.info('Wykonuje zadanie: ' + self.name + '.')
         
         bucket_result = ClsResult(self)
         for i in self.bucket:
