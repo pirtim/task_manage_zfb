@@ -7,7 +7,7 @@ from task_manage_zfb.tests.helper_test import *
 
 from task_manage_zfb.config import Config, MasterConfig, WorkerConfig, ConfigParserWithComments
 from task_manage_zfb.errors import ConfigParserLackOfStartCommentError, ConfigParserBadCommentError, ConfigNotConfigFileError
-from task_manage_zfb.main import _on_worker, TaskBucket
+from task_manage_zfb.main import _on_worker, Bucket
 
 import task_manage_zfb.master_bucket as mb
 import task_manage_zfb.worker_bucket as wb
@@ -27,18 +27,18 @@ class TestMain(unittest.TestCase):
 
     def test_makeBucket_on_master(self):
         self.my_master_config.write_configfile()
-        my_bucket = TaskBucket('raz', test_folder_path)
-        self.assertIsInstance(my_bucket, mb.MasterTaskBucket)
+        my_bucket = Bucket('raz', test_folder_path)
+        self.assertIsInstance(my_bucket, mb.MasterBucket)
 
     def test_makeBucket_on_master_local_test(self):
         self.my_master_config.write_configfile()
-        my_bucket = TaskBucket('raz', test_folder_path, True)
-        self.assertIsInstance(my_bucket, wb.TaskBucket)
+        my_bucket = Bucket('raz', test_folder_path, True)
+        self.assertIsInstance(my_bucket, wb.Bucket)
 
     def test_makeBucket_on_worker(self):
         self.my_worker_config.write_configfile()
-        my_bucket = TaskBucket('raz', test_folder_path)
-        self.assertIsInstance(my_bucket, wb.TaskBucket)
+        my_bucket = Bucket('raz', test_folder_path)
+        self.assertIsInstance(my_bucket, wb.Bucket)
 
     def tearDown(self):
         help_tear_down()

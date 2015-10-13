@@ -32,15 +32,15 @@ class TaskResult(list):
             execution_datetime = datetime.datetime.now()
         self.append(self.OneTaskRes(result_raw, uuid.uuid1().hex, execution_datetime))
 
-class TaskBucketResult(list):
+class BucketResult(list):
     '''Container for results of tasks.'''
     TaskResDate = namedtuple('TaskResDate', 'task_rst time')
 
-    def __init__(self, taskBucket, bucket_initialize_time=None, *args):
+    def __init__(self, Bucket, bucket_initialize_time=None, *args):
         list.__init__(self, *args)
         if bucket_initialize_time == None:
             bucket_initialize_time = datetime.datetime.now()
-        self.taskBucket = taskBucket
+        self.Bucket = Bucket
         self.bucket_initialize_time = bucket_initialize_time
 
     def add_bucket_result(self, task_result, task_execution_datetime=None):
@@ -77,13 +77,13 @@ class Task(object):
     def _get_str_about(self):
         return self.function.__name__ + " - " + str(self.times_to_exec) + " - " + str(self.args) + " - " + str(self.kwargs)
 
-class TaskBucket(object):
+class Bucket(object):
     '''Container for tasks to execute.'''
     def __init__(self, name):
         self.bucket = []
         self.name = name
 
-    def execute(self, settings_file=None, output=os.path.abspath(__file__), ClsResult = TaskBucketResult):
+    def execute(self, settings_file=None, output=os.path.abspath(__file__), ClsResult = BucketResult):
         '''Executes bucket of tasks. Can take some time.'''
         logging.info('Wykonuje zadanie: ' + self.name + '.')
 

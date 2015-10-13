@@ -21,22 +21,22 @@ def _on_worker(folder_path=''):
     zfb_file_name = '.zfb_config'
     return WorkerConfig.is_config_file(os.path.join(folder_path, zfb_file_name))
 
-def TaskBucket(name, folder_path='', local_test=False):
+def Bucket(name, folder_path='', local_test=False):
     '''
-    Returns [worker_bucket., master_bucket.Master]TaskBucket.__init__(*args) if on [worker, master].
-    If local_test = True returns worker_bucket.TaskBucket.__init__(*args)
+    Returns [worker_bucket., master_bucket.Master]Bucket.__init__(*args) if on [worker, master].
+    If local_test = True returns worker_bucket.Bucket.__init__(*args)
 
     Example:
-    >>> TaskBucket('my_name') #doctest: +ELLIPSIS
-    <task_manage_zfb.master_bucket.MasterTaskBucket object at 0x...>
+    >>> Bucket('my_name') #doctest: +ELLIPSIS
+    <task_manage_zfb.master_bucket.MasterBucket object at 0x...>
 
-    >>> TaskBucket('my_name', local_test=True) #doctest: +ELLIPSIS
-    <task_manage_zfb.worker_bucket.TaskBucket object at 0x...>
+    >>> Bucket('my_name', local_test=True) #doctest: +ELLIPSIS
+    <task_manage_zfb.worker_bucket.Bucket object at 0x...>
     '''
     if _on_worker(folder_path) or local_test:
-        return wb.TaskBucket(name)
+        return wb.Bucket(name)
     else:
-        return mb.MasterTaskBucket(name)
+        return mb.MasterBucket(name)
 
 if __name__ == "__main__":
     def usage_example():
@@ -53,7 +53,7 @@ if __name__ == "__main__":
         def return_tuple():
             return (random.randint(1, 10), [random.randint(1, 10)])
 
-        buck = TaskBucket(name="Moje obliczenia")
+        buck = Bucket(name="Moje obliczenia")
 
         buck.add_task(moje_obliczenia1, 2, *(1, 5))
         buck.add_task(moje_obliczenia2, 3, *(4, 5))
