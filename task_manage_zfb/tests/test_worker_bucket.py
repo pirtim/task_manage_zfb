@@ -6,12 +6,11 @@ import logging
 from task_manage_zfb.worker_bucket import TaskBucket, Task, TaskResult, TaskBucketResult
 from task_manage_zfb.errors import TaskNotFoundError
 
-def id_fun(x):
-    return x
+import helper_test as hp
  
 class TestTask(unittest.TestCase):
     def setUp(self):
-        self.my_task = Task(id_fun, 2, 1)
+        self.my_task = Task(hp.id_fun, 2, 1)
         
     def test_Task__get_str_about(self):
         my_str = self.my_task._get_str_about()
@@ -30,13 +29,13 @@ class TestTask(unittest.TestCase):
 class TestTaskBucket(unittest.TestCase):        
     def setUp(self):
         self.my_bucket = TaskBucket(name="test_name")        
-        self.my_bucket.add_task(id_fun, 1, 1)
+        self.my_bucket.add_task(hp.id_fun, 1, 1)
  
     def test_TaskBucket_add_task(self):
-        self.my_bucket.add_task(id_fun, 1)
+        self.my_bucket.add_task(hp.id_fun, 1)
             
         self.assertEqual(2, len(self.my_bucket.bucket))
-        self.assertIn(id_fun, [tsk.function for tsk in self.my_bucket.bucket])
+        self.assertIn(hp.id_fun, [tsk.function for tsk in self.my_bucket.bucket])
         
     def test_TaskBucket_add_task_correct_Type(self):
         for i in self.my_bucket.bucket:
@@ -47,7 +46,7 @@ class TestTaskBucket(unittest.TestCase):
             
     def test_TaskBucket_get_task(self):
         self.my_task = self.my_bucket.get_task(0)
-        self.assertEqual(self.my_task.function, id_fun)
+        self.assertEqual(self.my_task.function, hp.id_fun)
         self.assertEqual(self.my_task.times_to_exec, 1)  
                
     def test_TaskBucket_list_bucket(self):
@@ -63,11 +62,15 @@ class TestTaskBucket(unittest.TestCase):
     def test_TaskBucket_execute(self):
         self.assertIsInstance(self.my_bucket.execute(), TaskBucketResult)
         
-class TestTaskBucketResult(unittest.TestCase):
+class TestTaskBucket_Connection(unittest.TestCase):
     def setUp(self):
         self.my_bucket = TaskBucket(name="test_name")
-        self.my_bucket.add_task(id_fun, 1, 1)
+        self.my_bucket.add_task(hp.run_host_name)
+        
+    def test_TaskBucket_execute_hostname(self):
         self.my_bucket_result = self.my_bucket.execute()
+        my_one_result = self.my_bucket_result.bucket_result[0][0].task_result[0][0]
+        self.assertEqual(my_one_result, hp.local_hostname)
         
 if __name__ == '__main__':
     unittest.main()

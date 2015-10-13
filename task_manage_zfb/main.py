@@ -21,15 +21,19 @@ def _on_worker(folder_path=''):
     zfb_file_name = '.zfb_config'
     return WorkerConfig.is_config_file(os.path.join(folder_path, zfb_file_name))
 
-def TaskBucket(name, folder_path=''):
+def TaskBucket(name, folder_path='', local_test=False):
     '''
-    Returns [master_bucket, worker_bucket].TaskBucket.__init__(*args) if on [master, worker].
+    Returns [worker_bucket., master_bucket.Master]TaskBucket.__init__(*args) if on [worker, master].
+    If local_test = True returns worker_bucket.TaskBucket.__init__(*args)
     
     Example:
     >>> TaskBucket('my_name') #doctest: +ELLIPSIS
-    <master_bucket.MasterTaskBucket object at 0x...>
+    <task_manage_zfb.master_bucket.MasterTaskBucket object at 0x...>
+    
+    >>> TaskBucket('my_name', local_test=True) #doctest: +ELLIPSIS
+    <task_manage_zfb.worker_bucket.TaskBucket object at 0x...>
     '''
-    if _on_worker(folder_path):
+    if _on_worker(folder_path) or local_test:
         return wb.TaskBucket(name)
     else:
         return mb.MasterTaskBucket(name)

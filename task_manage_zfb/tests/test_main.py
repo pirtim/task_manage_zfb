@@ -30,6 +30,11 @@ class TestMain(unittest.TestCase):
         my_bucket = TaskBucket('raz', test_folder_path)
         self.assertIsInstance(my_bucket, mb.MasterTaskBucket)
         
+    def test_makeBucket_on_master_local_test(self):
+        self.my_master_config.write_configfile()
+        my_bucket = TaskBucket('raz', test_folder_path, True)
+        self.assertIsInstance(my_bucket, wb.TaskBucket)
+        
     def test_makeBucket_on_worker(self):
         self.my_worker_config.write_configfile()
         my_bucket = TaskBucket('raz', test_folder_path)

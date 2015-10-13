@@ -1,5 +1,6 @@
 import os
 import logging
+import subprocess
 
 test_folder_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_files_gitignore')
 
@@ -29,4 +30,12 @@ def help_tear_down():
     for path in files_path:
         delete_if_file(path)
     # os.rmdir(test_folder_path)
+    
+def id_fun(x):
+    return x
+    
+def run_host_name():
+    return subprocess.check_output(["hostname"]).strip()
+    
+local_hostname = subprocess.check_output(["hostname"]).strip()
     
