@@ -6,6 +6,7 @@ import datetime
 import uuid
 import time
 import logging
+from collections import namedtuple
 
 # Cyclic reference? 
 # http://eli.thegreenplace.net/2009/06/12/safely-using-destructors-in-python
@@ -14,36 +15,39 @@ import logging
 
 from errors import TaskNotFoundError
 
-class TaskResult(object):
+class TaskResult(list):
     '''Container for results of one task.'''
-    def __init__(self, task, task_start_time=None):
+    OneTaskRes = namedtuple('OneTaskRes', 'raw hex time')
+    
+    def __init__(self, task, task_start_time=None, *args):        
+        list.__init__(self, *args)
         if task_start_time == None:
             task_start_time = datetime.datetime.now()        
         self.task = task
         self.task_start_time = task_start_time
-        self.task_result = []
         
     def add_task_result(self, result_raw, execution_datetime=None):
         '''Adds result of one execution of task.'''
         if execution_datetime == None:
             execution_datetime = datetime.datetime.now()
-        self.task_result += [(result_raw, uuid.uuid1().hex, execution_datetime)]
+        self.append(self.OneTaskRes(result_raw, uuid.uuid1().hex, execution_datetime))
 
-class TaskBucketResult(object):
+class TaskBucketResult(list):
     '''Container for results of tasks.'''
-    def __init__(self, taskBucket, bucket_initialize_time=None):
+    TaskResDate = namedtuple('TaskResDate', 'task_rst time')
+    
+    def __init__(self, taskBucket, bucket_initialize_time=None, *args):
+        list.__init__(self, *args)
         if bucket_initialize_time == None:
             bucket_initialize_time = datetime.datetime.now()
         self.taskBucket = taskBucket
         self.bucket_initialize_time = bucket_initialize_time
-        self.bucket_result = []
         
     def add_bucket_result(self, task_result, task_execution_datetime=None):
         '''Adds results of task to bucket of task results.'''
         if task_execution_datetime == None:
             task_execution_datetime = datetime.datetime.now()
-        
-        self.bucket_result += [(task_result, task_execution_datetime)]
+        self.append(self.TaskResDate(task_result, task_execution_datetime))
         
 class Task(object):
     '''Remembers function to execute, args and times of execution.'''

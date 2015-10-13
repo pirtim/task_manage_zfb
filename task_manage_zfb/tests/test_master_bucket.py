@@ -2,6 +2,7 @@ import unittest
 import datetime
 import uuid
 import logging
+from collections import namedtuple
 
 from task_manage_zfb.master_bucket import MasterTaskBucket, MasterTask, MasterTaskBucketResult, MasterTaskResult
 from task_manage_zfb.worker_bucket import TaskBucket, Task, TaskResult
@@ -35,12 +36,12 @@ class TestMasterTask(unittest.TestCase):
     def test_MasterTask_execute_task(self):
         my_result = self.my_task.execute_task()
         self.assertIsInstance(my_result, MasterTaskResult)
-        self.assertIsInstance(my_result.task_result[0][0], int)
-        self.assertIsInstance(my_result.task_result[0][1], str)
-        self.assertEqual(len(my_result.task_result[0][1]), len(uuid.uuid1().hex))
-        self.assertIsInstance(my_result.task_result[0][2], datetime.date)
+        self.assertIsInstance(my_result[0].raw, int)
+        self.assertIsInstance(my_result[0].hex, str)
+        self.assertEqual(len(my_result[0].hex), len(uuid.uuid1().hex))
+        self.assertIsInstance(my_result[0].time, datetime.date)
         self.assertEqual(self.my_task, my_result.task)
-        self.assertEqual([i[0] for i in my_result.task_result], [1, 1])
+        self.assertEqual([i[0] for i in my_result], [1, 1])
  
 class TestMasterTaskBucket(unittest.TestCase):
     def setUp(self):
@@ -63,7 +64,7 @@ class TestMasterTaskBucket_Connection(unittest.TestCase):
     
     def test_MasterTaskBucket_execute_hostname(self):
         self.my_bucket_result = self.my_bucket.execute()
-        my_one_result = self.my_bucket_result.bucket_result[0][0].task_result[0][0]
+        my_one_result = self.my_bucket_result[0].task_rst[0].raw
         self.assertEqual(my_one_result, 'gene')        
     
 if __name__ == '__main__':

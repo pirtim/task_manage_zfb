@@ -26,11 +26,11 @@ class MasterTaskBucketResult(TaskBucketResult):
         '''Private function to help get_table_bucket_result'''
         results = [['#task', '#task_run', 'function / result']]
         results[0].append('task time')
-        for index1, elem1 in enumerate(self.bucket_result, 1):
-            results.append([str(index1), '',str(elem1[0].task.function.__name__),elem1[1].strftime('%c')])
+        for index1, result_bucket in enumerate(self, 1):
+            results.append([str(index1), '',str(result_bucket.task_rst.task.function.__name__),result_bucket.time.strftime('%c')])
             
-            for index2, elem2 in enumerate(elem1[0].task_result, 1):
-                results.append(['', str(index2), str(elem2[0]), elem2[2].strftime('%c')])           
+            for index2, result_task in enumerate(result_bucket[0], 1):
+                results.append(['', str(index2), str(result_task.hex), result_task.time.strftime('%c')]) 
         return results
         
     def get_table_bucket_result(self):
