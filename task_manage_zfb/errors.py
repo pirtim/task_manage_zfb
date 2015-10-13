@@ -15,7 +15,7 @@ class TaskNotFoundError(MyBaseError):
             self.message = message
         self.task_id = task_id
         super(TaskNotFoundError, self).__init__(self.message, *args)
-        
+
 class ConfigParserLackOfStartCommentError(ConfigParser.Error):
     def __init__(self, message=None, *args):
         if message == None:
@@ -23,7 +23,7 @@ class ConfigParserLackOfStartCommentError(ConfigParser.Error):
         else:
             self.message = message
         super(ConfigParser.Error, self).__init__(self.message, *args)
-    
+
 class ConfigParserBadCommentError(ConfigParser.Error):
     def __init__(self, message=None, *args):
         if message == None:
@@ -31,7 +31,7 @@ class ConfigParserBadCommentError(ConfigParser.Error):
         else:
             self.message = message
         super(ConfigParser.Error, self).__init__(self.message, *args)
-        
+
 class ConfigNotConfigFileError(MyBaseError):
     '''Raise when a user references to non existing task.'''
     def __init__(self, path, message=None, *args):
@@ -41,4 +41,3 @@ class ConfigNotConfigFileError(MyBaseError):
             self.message = message
         self.path = path
         super(MyBaseError, self).__init__(self.message, *args)
-        

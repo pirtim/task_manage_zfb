@@ -17,25 +17,24 @@ files_path = [worker_configfile_path, master_configfile_path, test_configfile_pa
 def delete_if_file(filepath):
     if os.path.isfile(filepath):
         os.remove(filepath)
-        
+
 def help_set_up():
     if not os.path.isdir(test_folder_path):
-        os.mkdir(test_folder_path) 
+        os.mkdir(test_folder_path)
     with open(normalfile_path, 'w') as normalfile:
         normalfile.write("test")
     with open(emptyfile_path, 'w') as emptyfile:
         emptyfile.write("")
-    
+
 def help_tear_down():
     for path in files_path:
         delete_if_file(path)
     # os.rmdir(test_folder_path)
-    
+
 def id_fun(x):
     return x
-    
+
 def run_host_name():
     return subprocess.check_output(["hostname"]).strip()
-    
+
 local_hostname = subprocess.check_output(["hostname"]).strip()
-    
